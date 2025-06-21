@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 from app.models import *
 
 api_bp = Blueprint('api', __name__)
@@ -242,3 +242,34 @@ def verificar_historico():
             i += 1
 
     return jsonify(retorno), 200
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@api_bp.route('/upload', methods=['POST'])
+def upload_imagem():
+    if 'imagem' not in request.files:
+        return jsonify({"erro": "Nenhum campo de arquivo 'imagem' foi enviado."}), 400
+
+    file = request.files['imagem']
+    if file.filename == '':
+        return jsonify({"erro": "Nenhuma imagem selecionada."}), 400
+
+    if file and allowed_file(file.filename):
+        try:
+            save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], f"newFig.{file.filename.rsplit('.', 1)[1].lower()}")
+            file.save(save_path)
+            return jsonify({"mensagem": f"Arquivo salvo com sucesso."}), 201
+        except Exception as e:
+            return jsonify({"erro": f"Não foi possível salvar o arquivo: {e}"}), 500
+    else:
+        return jsonify({"erro": "Tipo de arquivo não permitido."}), 400
+    
+@api_bp.route('/imagem/<path:filename>', methods=["GET"])
+def download_imagem(filename):
+    return send_from_directory(
+            current_app.config['MENU_IMAGES'],
+            filename,
+            as_attachment=False
+        )

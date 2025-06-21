@@ -1,6 +1,7 @@
 from app.services import *
 from datetime import date, datetime
 from functools import wraps
+import os
 
 def manage_connection(func):
     @wraps(func)
@@ -69,10 +70,10 @@ def solicita_cardapio(conn, comida=bool):
         produto["preco"] = p[3]
         produto["figura"] = None
         if p[4] != None:
-            caminho = f"img/figItem{p[0]}.{p[5]}"
+            caminho =  os.path.join(current_app.config['MENU_IMAGES'], f"figItem{p[0]}.{p[5]}")
             with open(caminho, 'wb') as file:
                 file.write(p[4])
-            produto["figura"] = caminho
+            produto["figura"] = f"figItem{p[0]}.{p[5]}"
 
         cardapio.append(produto)
     return cardapio
@@ -102,7 +103,7 @@ def insere_cardapio(conn, informacoes):
 
     if extensao:
         try:
-            caminho = f"img/figAdd.{extensao}"
+            caminho = os.path.join(current_app.config['UPLOAD_FOLDER'], f"newFig.{extensao}")
             with open(caminho, 'rb') as file:
                 figBin = file.read()
         except:
