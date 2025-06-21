@@ -1,4 +1,5 @@
 .env
 /venv/
-/img/
-/src/__pycache__/
+/bin/
+/app/__pycache__/
+/__pycache__/

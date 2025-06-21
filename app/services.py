@@ -1,24 +1,24 @@
 import mysql.connector
+from flask import current_app
 
-def connect(host, database, user, password, port):
+def get_connection():
     conn = None
+    config = current_app.config
     try:
         conn = mysql.connector.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password,
-            port=port)
-        print(f"Connected succesfully to database {database} on MySQL.")
+            host=config["MYSQL_HOST"],
+            database=config["MYSQL_DATABASE"],
+            user=config["MYSQL_USER"],
+            password=config["MYSQL_PASSWORD"],
+            port=config["MYSQL_PORT"])
 
     except Exception as e:
-        print(f"Failed to connect to database {database} on MySQL.")
+        print(f"Failed to connect to database.")
     return conn
 
 def close_connection(conn):
     if conn:
         conn.close()
-        print("Connection closed.")
 
 def send_query(conn, query, params):
     cursor = conn.cursor()
