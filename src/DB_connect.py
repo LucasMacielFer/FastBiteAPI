@@ -20,17 +20,43 @@ def close_connection(conn):
         conn.close()
         print("Connection closed.")
 
-def send_query(conn, query):
+def send_query(conn, query, params):
     cursor = conn.cursor()
     result = None
     desc = None
 
     try:
-        cursor.execute(query)
+        cursor.execute(query, params)
         result = cursor.fetchall()
-        desc = [d[0] for d in cursor.description]
+        if cursor.description:
+            desc = [d[0] for d in cursor.description]
     except Exception as e:
         print("Invalid search on database.")
     cursor.close()
     
     return result, desc
+
+def insert_delete(conn, query, params):
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params)
+        conn.commit()
+    except Exception as e:
+        print("Invalid insertion/deletion on database.")
+        conn.rollback()
+        return False
+    cursor.close()
+    return True
+
+def insert_and_get_ID(conn, query, params):
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, params)
+        id_gerado = cursor.lastrowid
+        conn.commit()
+    except Exception as e:
+        print("Invalid insertion/deletion on database.")
+        conn.rollback()
+        return -1
+    cursor.close()
+    return id_gerado
