@@ -74,7 +74,7 @@ def adicao_cardapio_c():
     ext = dados.get('extensao')
     ehComida = True
 
-    if not nome or not desc or not preco or not ext:
+    if not nome or not desc or not preco:
         return jsonify({"msg": "Algum dado ausente"}), 400
     
     infos = {"nome":nome, "descricao":desc, "preco":preco, "extensao":ext, "ehComida":ehComida}
@@ -82,7 +82,7 @@ def adicao_cardapio_c():
     if insere_cardapio(infos):
         return jsonify({"msg":  "Sucesso"}), 201
     else:
-        return jsonify({"msg":  "Falha na inserção"}), 405
+        return jsonify({"msg":  "Falha na inserção"}), 409
     
 @api_bp.route("/cardapio/adicionar/bebida", methods=["POST"])
 def adicao_cardapio_b():
@@ -95,7 +95,7 @@ def adicao_cardapio_b():
     ext = dados.get('extensao')
     ehComida = False
 
-    if not nome or not desc or not preco or not ext:
+    if not nome or not desc or not preco:
         return jsonify({"msg": "Algum dado ausente"}), 400
     
     infos = {"nome":nome, "descricao":desc, "preco":preco, "extensao":ext, "ehComida":ehComida}
@@ -103,7 +103,7 @@ def adicao_cardapio_b():
     if insere_cardapio(infos):
         return jsonify({"msg":  "Sucesso"}), 201
     else:
-        return jsonify({"msg":  "Falha na inserção"}), 405
+        return jsonify({"msg":  "Falha na inserção"}), 409
     
 @api_bp.route("/cardapio/<int:IDitem>", methods=["DELETE"])
 def remocao_cardapio(IDitem): 
@@ -145,10 +145,11 @@ def criacao_pedido():
     if not mesa or not relacaoItens:
         return jsonify({"msg": "Algum dado ausente"}), 400
 
-    if cria_pedido(mesa, relacaoItens):
-        return jsonify({"msg":  "Sucesso"}), 201
+    numPedido = cria_pedido(mesa, relacaoItens)
+    if numPedido > -1:
+        return jsonify({"numPedido":  numPedido}), 201
     else:
-        return jsonify({"msg":  "Falha na criação de pedido"}), 405
+        return jsonify({"numPedido":  numPedido}), 405
     
 @api_bp.route("/pedidos/<int:IDpedido>/entregar", methods=["POST"])
 def entrega_de_pedido(IDpedido):
