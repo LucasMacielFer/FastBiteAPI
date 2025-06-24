@@ -128,6 +128,15 @@ def alteracao_cardapio():
     if not itemNo or not campo or not valor:
         return jsonify({"msg": "Algum dado ausente"}), 400
     
+    # Se tentar editar a figura...
+    if campo == "figura" or campo == "extensao":
+        try:
+            caminho = os.path.join(current_app.config['UPLOAD_FOLDER'], f"newFig.{valor}")
+            with open(caminho, 'rb') as file:
+                valor = file.read()
+        except:
+            valor = None
+
     if altera_info_cardapio(itemNo, campo, valor):
         return jsonify({"msg":  "Sucesso"}), 200
     else:
@@ -183,7 +192,6 @@ def consulta_mesa(mesa):
         for item in itensComanda:
             retorno[f"{i}"] = item
             i += 1
-
     if retorno != {}:
         return jsonify(retorno), 200
     else:

@@ -57,9 +57,9 @@ def remove_mesa(conn, IDmesa=int):
 def solicita_cardapio(conn, comida=bool):
     cardapio = []
     if comida:
-        query = "select * from cardapio where ehComida=1;"
+        query = "select * from cardapio where ehComida=1 and ativo=1;"
     else:
-        query = "select * from cardapio where ehComida=0;"
+        query = "select * from cardapio where ehComida=0 and ativo=1;"
     listagem = send_query(conn, query, [])
     listagem = listagem[0]
     for p in listagem:
@@ -99,7 +99,7 @@ def insere_cardapio(conn, informacoes):
     if itemRegistrado != []:
         return False
     
-    query = "insert into cardapio (nome, descricao, preco, figura, extensao, ehComida) values (%s, %s, %s, %s, %s, %s)"
+    query = "insert into cardapio (nome, descricao, preco, figura, extensao, ehComida, ativo) values (%s, %s, %s, %s, %s, %s, true)"
 
     if extensao:
         try:
@@ -121,10 +121,12 @@ def insere_cardapio(conn, informacoes):
 @manage_connection
 def remove_cardapio(conn, idItem=int):
     query = f"select idItem from cardapio where idItem=%s;"
-    mesaRegistrada = send_query(conn, query, (idItem,))
-    mesaRegistrada = mesaRegistrada[0]
-    if mesaRegistrada != []:
-        if insert_delete(conn, f"delete from cardapio where idItem=%s;", (idItem,)):
+    itemRegistrado= send_query(conn, query, (idItem,))
+    itemRegistrado = itemRegistrado[0]
+    print(idItem)
+    print(itemRegistrado)
+    if itemRegistrado != []:
+        if insert_delete(conn, f"update cardapio set ativo=false where idItem=%s;", (idItem,)):
             return True
     return False
 
@@ -197,7 +199,7 @@ def cancela_pedido(conn, IDpedido):
 # Consulta de comanda pela interface do caixa
 @manage_connection
 def consulta_consumo(conn, IDmesa):
-    consumo = []
+    retorno = []
     query = f"select * from mesas where IDmesa=%s;"
     mesaRegistrada = send_query(conn, query, (IDmesa,))
     mesaRegistrada = mesaRegistrada[0]
@@ -221,9 +223,9 @@ def consulta_consumo(conn, IDmesa):
         itensPedido["nome"] = item[4]
         itensPedido["preco"] = item[5]
         itensPedido["quantidade"] = item[6]
-        consumo.append(itensPedido)
+        retorno.append(itensPedido)
 
-    return consumo
+    return retorno
 
 # Consulta dos pedidos pela interface da cozinha
 @manage_connection
@@ -293,7 +295,7 @@ def fecha_comanda(conn, IDmesa):
 @manage_connection
 def consulta_historico_mensal(conn):
     retorno = []
-    query = "select p.IDpedido, p.IDmesa, p.data, p.hora, ip.IDitem, ip.quantidade, ph.status from pedido p natural join itens_pedido ip natural join pedidos_historico ph order by p.IDpedido"
+    query = "select p.IDpedido, p.IDmesa, p.data, p.hora, ip.IDitem, ip.quantidade, ph.status from pedido p natural join itens_pedido ip natural join pedidos_historico ph order by p.data, p.hora"
     historico = send_query(conn, query, [])
     historico = historico[0]
 
