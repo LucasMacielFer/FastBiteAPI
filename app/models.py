@@ -70,7 +70,7 @@ def solicita_cardapio(conn, comida=bool):
         produto["preco"] = p[3]
         produto["figura"] = None
         if p[4] != None:
-            caminho =  os.path.join(current_app.config['MENU_IMAGES'], f"figItem{p[0]}.{p[5]}")
+            caminho = os.path.join(current_app.config['MENU_IMAGES'], f"figItem{p[0]}.{p[5]}")
             with open(caminho, 'wb') as file:
                 file.write(p[4])
             produto["figura"] = f"figItem{p[0]}.{p[5]}"

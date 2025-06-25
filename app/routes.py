@@ -280,5 +280,5 @@ def download_imagem(filename):
     return send_from_directory(
             current_app.config['MENU_IMAGES'],
             filename,
-            as_attachment=False
+            as_attachment=True
         )
